@@ -22,5 +22,4 @@ private:
 };
 } // namespace util
 
-
 #endif // __SHADERS_MANAGER_HPP__
