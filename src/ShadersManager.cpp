@@ -59,8 +59,8 @@ util::ShadersManager::ShadersManager(std::string_view i_vertexShaderPath, std::s
         throw std::runtime_error("Shaider linking failed" + std::string(infoLog));
     }
 
-    // glDeleteShader(vertexId);
-    // glDeleteShader(fragmentId);
+    glDeleteShader(vertexId);
+    glDeleteShader(fragmentId);
 }
 
 void util::ShadersManager::render()
@@ -71,4 +71,19 @@ void util::ShadersManager::render()
 GLuint util::ShadersManager::getId() const
 {
     return d_programId;
+}
+
+void util::ShadersManager::setBool(const std::string& i_name, bool i_value) const
+{
+    setInt(i_name, static_cast<int>(i_value));
+}
+
+void util::ShadersManager::setInt(const std::string& i_name, int i_value) const
+{
+    glUniform1i(glGetUniformLocation(d_programId, i_name.c_str()), i_value);
+}
+
+void util::ShadersManager::setFloat(const std::string& i_name, float i_value) const
+{
+    glUniform1f(glGetUniformLocation(d_programId, i_name.c_str()), i_value);
 }

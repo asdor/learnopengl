@@ -16,6 +16,10 @@ public:
 
     GLuint getId() const;
 
+    void setBool(const std::string& i_name, bool i_value) const;
+    void setInt(const std::string& i_name, int i_value) const;
+    void setFloat(const std::string& i_name, float i_value) const;
+
 private:
     GLuint d_programId;
 

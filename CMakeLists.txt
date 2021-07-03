@@ -7,12 +7,13 @@ set(OpenGL_GL_PREFERENCE LEGACY)
 find_package(OpenGL REQUIRED)
 find_package(glfw3 3.3 REQUIRED)
 
-add_subdirectory(glad)
+add_subdirectory(libs/glad)
+add_subdirectory(libs/stb)
 
 file(GLOB LEARNOPENGL_SRC src/*.cpp)
 
 add_executable(${PROJECT_NAME} ${LEARNOPENGL_SRC})
-target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL glfw Glad)
+target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL glfw Glad stb_image)
 
 target_include_directories(${PROJECT_NAME} PUBLIC
     ${OPENGL_INCLUDE_DIR}
