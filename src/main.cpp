@@ -4,6 +4,9 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <stb_image.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include <iostream>
 
@@ -59,7 +62,6 @@ int main()
         1, 2, 3  // second triangle
     };
 
-
     unsigned int VAO = 0;
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
@@ -86,6 +88,12 @@ int main()
     shadersManager.render();
     shadersManager.setInt("texture0", 0);
     shadersManager.setInt("texture1", 1);
+
+    auto trans = glm::mat4(1.0f);
+    trans = glm::rotate(trans, glm::radians(90.f), glm::vec3(0.0f, 0.0f, 1.0f));
+    trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
+    auto tranformLoc = glGetUniformLocation(shadersManager.getId(), "transform");
+    glUniformMatrix4fv(tranformLoc, 1, GL_FALSE, glm::value_ptr(trans));
 
     while(!glfwWindowShouldClose(window))
     {

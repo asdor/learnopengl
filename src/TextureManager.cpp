@@ -4,7 +4,7 @@
 
 #include <stdexcept>
 
-util::TextureManager::TextureManager(const std::string& i_texturePath)
+util::TextureManager::TextureManager(const std::string& i_texturePath, GLenum i_wrapParam)
 {
     int texWidth = 0;
     int texHeight = 0;
@@ -17,8 +17,8 @@ util::TextureManager::TextureManager(const std::string& i_texturePath)
     glGenTextures(1, &d_texId);
     glBindTexture(GL_TEXTURE_2D, d_texId);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, i_wrapParam);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, i_wrapParam);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 

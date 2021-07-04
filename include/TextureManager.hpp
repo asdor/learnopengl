@@ -10,7 +10,7 @@ namespace util
 class TextureManager
 {
 public:
-    TextureManager(const std::string& i_texturePath);
+    TextureManager(const std::string& i_texturePath, GLenum i_wrapParam = GL_REPEAT);
 
     void activate(GLenum i_texUnit);
 
