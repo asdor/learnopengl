@@ -4,8 +4,8 @@ project(learnopengl VERSION 0.0.1 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 
 if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
-    message(STATUS "Downloading conan.cmake from https://github.com/conan-io/cmake-conan")
-    file(DOWNLOAD "https://github.com/conan-io/cmake-conan/raw/v0.15/conan.cmake"
+   message(STATUS "Downloading conan.cmake from https://github.com/conan-io/cmake-conan")
+   file(DOWNLOAD "https://raw.githubusercontent.com/conan-io/cmake-conan/master/conan.cmake"
                   "${CMAKE_BINARY_DIR}/conan.cmake")
 endif()
 
@@ -19,13 +19,10 @@ set(OpenGL_GL_PREFERENCE LEGACY)
 find_package(OpenGL REQUIRED)
 find_package(glfw3 3.3 REQUIRED)
 
-add_subdirectory(libs/glad)
-add_subdirectory(libs/stb)
-
 file(GLOB LEARNOPENGL_SRC src/*.cpp)
 
 add_executable(${PROJECT_NAME} ${LEARNOPENGL_SRC})
-target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL glfw Glad stb_image ${CONAN_LIBS})
+target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL glfw ${CONAN_LIBS})
 
 target_include_directories(${PROJECT_NAME} PUBLIC
     ${OPENGL_INCLUDE_DIR}
