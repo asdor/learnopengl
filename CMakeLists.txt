@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.12)
 project(learnopengl VERSION 0.0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -15,14 +15,12 @@ conan_cmake_run(CONANFILE conanfile.txt
                 BASIC_SETUP
                 BUILD missing)
 
-set(OpenGL_GL_PREFERENCE LEGACY)
 find_package(OpenGL REQUIRED)
-find_package(glfw3 3.3 REQUIRED)
 
 file(GLOB LEARNOPENGL_SRC src/*.cpp)
 
 add_executable(${PROJECT_NAME} ${LEARNOPENGL_SRC})
-target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL glfw ${CONAN_LIBS})
+target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL ${CONAN_LIBS})
 
 target_include_directories(${PROJECT_NAME} PUBLIC
     ${OPENGL_INCLUDE_DIR}
