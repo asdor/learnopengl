@@ -1,5 +1,7 @@
 #include "ShadersManager.hpp"
 
+#include <glm/gtc/type_ptr.hpp>
+
 #include <iostream>
 #include <fstream>
 
@@ -86,4 +88,10 @@ void util::ShadersManager::setInt(const std::string& i_name, int i_value) const
 void util::ShadersManager::setFloat(const std::string& i_name, float i_value) const
 {
     glUniform1f(glGetUniformLocation(d_programId, i_name.c_str()), i_value);
+}
+
+void util::ShadersManager::setMatrix4fv(const std::string& i_name, const glm::mat4& i_matrix) const
+{
+    const int matrixLoc = glGetUniformLocation(d_programId, i_name.c_str());
+    glUniformMatrix4fv(matrixLoc, 1, GL_FALSE, glm::value_ptr(i_matrix));
 }
