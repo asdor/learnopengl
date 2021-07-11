@@ -1,8 +1,10 @@
+#include <glad/glad.h> // should be included first
+
+#include "CameraManager.hpp"
 #include "ShadersManager.hpp"
 #include "TextureManager.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
-#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <stb_image.h>
 #include <glm/glm.hpp>
@@ -17,10 +19,28 @@ void framebuffer_size_callback(GLFWwindow*, int width, int height)
     glViewport(0, 0, width, height);
 }
 
-void process_input(GLFWwindow* window)
+void process_input(GLFWwindow* window, util::Camera& io_camera, float& io_deltaTime, float& io_lastFrame)
 {
+    const float currentTime = glfwGetTime();
+    io_deltaTime = currentTime - io_lastFrame;
+    io_lastFrame = currentTime;
+
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+    else if (io_camera.processKeyboard(window, io_deltaTime))
+        return;
+}
+
+void mouse_callback(GLFWwindow* window, double i_xpos, double i_ypos)
+{
+    if (auto camera = reinterpret_cast<util::Camera*>(glfwGetWindowUserPointer(window)))
+        camera->processMouseInput(i_xpos, i_ypos);
+}
+
+void scroll_callback(GLFWwindow* window, double i_xOffset, double i_yOffset)
+{
+    if (auto camera = reinterpret_cast<util::Camera*>(glfwGetWindowUserPointer(window)))
+        camera->processScrollInput(i_xOffset, i_yOffset);
 }
 
 int main()
@@ -46,9 +66,19 @@ int main()
     }
 
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    util::ShadersManager shadersManager("../src/shaders/vertex.vs", "../src/shaders/fragment.fs");
+
+    glm::vec3 cameraPos(0.0f, 0.0f, 3.0f);
+    glm::vec3 cameraFront(0.0f, 0.0f, -1.0f);
+    glm::vec3 cameraUp(0.0f, 1.0f, 0.0f);
+    util::Camera camera(cameraPos, cameraFront, cameraUp);
+
+    glfwSetWindowUserPointer(window, &camera);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, scroll_callback);
 
     stbi_set_flip_vertically_on_load(true);
+    util::ShadersManager shadersManager("../src/shaders/vertex.vs", "../src/shaders/fragment.fs");
     util::TextureManager texContainer("../assets/container.jpg");
     util::TextureManager texAwesomeFace("../assets/awesomeface.png");
 
@@ -131,11 +161,15 @@ int main()
     shadersManager.render();
     shadersManager.setInt("texture0", 0);
     shadersManager.setInt("texture1", 1);
+
+    float deltaTime = 0.0f;
+    float lastFrame = deltaTime;
+
     glEnable(GL_DEPTH_TEST);
 
     while(!glfwWindowShouldClose(window))
     {
-        process_input(window);
+        process_input(window, camera, deltaTime, lastFrame);
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -143,19 +177,19 @@ int main()
         texContainer.activate(GL_TEXTURE0);
         texAwesomeFace.activate(GL_TEXTURE1);
 
-        auto view = glm::mat4(1.0f);
-        view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-        auto projection = glm::perspective(glm::radians(45.0f), 800.f / 600.f, 0.1f, 100.f);
+        auto view = camera.getView();
+        auto projection = camera.getProjection();
 
         shadersManager.setMatrix4fv("view", view);
         shadersManager.setMatrix4fv("projection", projection);
 
         glBindVertexArray(VAO);
-        for (const auto& cubePos : cubePositions)
+        for (size_t i = 0; const auto& cubePos : cubePositions)
         {
             auto model = glm::mat4(1.0f);
             model = glm::translate(model, cubePos);
-            model = glm::rotate(model, glm::radians(45.0f), glm::vec3(.5f, 1.0f, 0.0f));
+            const float angle = 20.f * i++;
+            model = glm::rotate(model, glm::radians(angle), glm::vec3(.5f, 1.0f, 0.0f));
             shadersManager.setMatrix4fv("model", model);
 
             glDrawArrays(GL_TRIANGLES, 0, 36);
