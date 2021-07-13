@@ -34,7 +34,6 @@ private:
     bool isFirstMouse = true;
     double lastPosX = 0.0f;
     double lastPosY = 0.0f;
-
 };
 }
 

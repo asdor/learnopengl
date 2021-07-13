@@ -20,6 +20,7 @@ public:
     void setBool(const std::string& i_name, bool i_value) const;
     void setInt(const std::string& i_name, int i_value) const;
     void setFloat(const std::string& i_name, float i_value) const;
+    void setVec3(const std::string& i_name, const glm::vec3& i_vec) const;
     void setMatrix4fv(const std::string& i_name, const glm::mat4& i_matrix) const;
 
 private:

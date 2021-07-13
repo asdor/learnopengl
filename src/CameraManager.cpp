@@ -14,11 +14,11 @@ static constexpr float PITCH = 0.0f;
 static constexpr float SENSITIVITY = 0.1f;
 static constexpr float FOV = 45.0f;
 
-void printVec3(std::string_view i_vecName, const glm::vec3& i_vec)
-{
-    std::cout << std::setw(6) << i_vecName << ": " << std::fixed << std::setprecision(2) << std::setw(6)
-              << i_vec.x << ' ' << i_vec.y << ' ' << i_vec.z << '\n';
-}
+// void printVec3(std::string_view i_vecName, const glm::vec3& i_vec)
+// {
+//     std::cout << std::setw(6) << i_vecName << ": " << std::fixed << std::setprecision(2) << std::setw(6)
+//               << i_vec.x << ' ' << i_vec.y << ' ' << i_vec.z << '\n';
+// }
 }
 
 namespace util
@@ -101,7 +101,6 @@ void Camera::updateCameraVectors()
 
 glm::highp_mat4 Camera::getView() const
 {
-    printVec3("Up", d_up);
     return glm::lookAt(d_pos, d_pos + d_front, d_up);
 }
 

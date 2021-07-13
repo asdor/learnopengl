@@ -90,6 +90,12 @@ void util::ShadersManager::setFloat(const std::string& i_name, float i_value) co
     glUniform1f(glGetUniformLocation(d_programId, i_name.c_str()), i_value);
 }
 
+void util::ShadersManager::setVec3(const std::string& i_name, const glm::vec3& i_vec) const
+{
+    const int vecLoc = glGetUniformLocation(d_programId, i_name.c_str());
+    glUniform3fv(vecLoc, 1, glm::value_ptr(i_vec));
+}
+
 void util::ShadersManager::setMatrix4fv(const std::string& i_name, const glm::mat4& i_matrix) const
 {
     const int matrixLoc = glGetUniformLocation(d_programId, i_name.c_str());

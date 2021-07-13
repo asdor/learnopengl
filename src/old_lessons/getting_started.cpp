@@ -79,15 +79,27 @@ int main()
     glfwSetScrollCallback(window, scroll_callback);
 
     stbi_set_flip_vertically_on_load(true);
-    util::ShadersManager objectShader("../src/shaders/vertex.vs", "../src/shaders/fragment.fs");
-    util::ShadersManager lightShader("../src/shaders/vertex.vs", "../src/shaders/lightFragment.fs");
+    util::ShadersManager shadersManager("../src/shaders/vertex.vs", "../src/shaders/fragment.fs");
+    util::TextureManager texContainer("../assets/container.jpg");
+    util::TextureManager texAwesomeFace("../assets/awesomeface.png");
 
     const auto cubeVertices = utils::getCubeVertices();
-    // const std::array cubePositions = utils::getCubesPositions();
+    const std::array cubePositions = {
+        glm::vec3( 0.0f,  0.0f,  0.0f),
+        glm::vec3( 2.0f,  5.0f, -15.0f),
+        glm::vec3(-1.5f, -2.2f, -2.5f),
+        glm::vec3(-3.8f, -2.0f, -12.3f),
+        glm::vec3( 2.4f, -0.4f, -3.5f),
+        glm::vec3(-1.7f,  3.0f, -7.5f),
+        glm::vec3( 1.3f, -2.0f, -2.5f),
+        glm::vec3( 1.5f,  2.0f, -2.5f),
+        glm::vec3( 1.5f,  0.2f, -1.5f),
+        glm::vec3(-1.3f,  1.0f, -1.5f)
+    };
 
-    unsigned int objectVAO = 0;
-    glGenVertexArrays(1, &objectVAO);
-    glBindVertexArray(objectVAO);
+    unsigned int VAO = 0;
+    glGenVertexArrays(1, &VAO);
+    glBindVertexArray(VAO);
 
     // unsigned int EBO = 0;
     // glGenBuffers(1, &EBO);
@@ -102,19 +114,12 @@ int main()
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    unsigned int lightCubeVAO = 0;
-    glGenVertexArrays(1, &lightCubeVAO);
-    glBindVertexArray(lightCubeVAO);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    objectShader.render();
-    objectShader.setVec3("objectColor", glm::vec3(1.0f, 0.5f, 0.3f));
-    objectShader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
-
-    const glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+    shadersManager.render();
+    shadersManager.setInt("texture0", 0);
+    shadersManager.setInt("texture1", 1);
 
     float deltaTime = 0.0f;
     float lastFrame = deltaTime;
@@ -127,35 +132,33 @@ int main()
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        objectShader.render();
+        shadersManager.render();
+        texContainer.activate(GL_TEXTURE0);
+        texAwesomeFace.activate(GL_TEXTURE1);
 
         auto view = camera.getView();
         auto projection = camera.getProjection();
 
-        objectShader.setMatrix4fv("view", view);
-        objectShader.setMatrix4fv("projection", projection);
+        shadersManager.setMatrix4fv("view", view);
+        shadersManager.setMatrix4fv("projection", projection);
 
-        auto model = glm::mat4(1.0f);
-        objectShader.setMatrix4fv("model", model);
-        glBindVertexArray(objectVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glBindVertexArray(VAO);
+        for (size_t i = 0; const auto& cubePos : cubePositions)
+        {
+            auto model = glm::mat4(1.0f);
+            model = glm::translate(model, cubePos);
+            const float angle = 20.f * i++;
+            model = glm::rotate(model, glm::radians(angle), glm::vec3(.5f, 1.0f, 0.0f));
+            shadersManager.setMatrix4fv("model", model);
 
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, lightPos);
-        model = glm::scale(model, glm::vec3(0.2f));
-
-        lightShader.render();
-        lightShader.setMatrix4fv("view", view);
-        lightShader.setMatrix4fv("projection", projection);
-        lightShader.setMatrix4fv("model", model);
-        glBindVertexArray(lightCubeVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
-    glDeleteVertexArrays(1, &objectVAO);
+    glDeleteVertexArrays(1, &VAO);
     // glDeleteBuffers(1, &EBO);
     glDeleteBuffers(1, &VBO);
 
