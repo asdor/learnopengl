@@ -4,12 +4,13 @@
 #include <glm/glm.hpp>
 
 #include <array>
-
+#include <vector>
 
 namespace utils
 {
 std::array<float, 180> getCubeVertices();
 std::array<glm::vec3, 10> getCubesPositions();
+std::vector<float> getCubeWithNormals();
 }
 
 #endif // __VERTICES_HPP__

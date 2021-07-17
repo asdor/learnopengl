@@ -17,6 +17,7 @@ public:
 
     glm::highp_mat4 getView() const;
     glm::highp_mat4 getProjection() const;
+    glm::vec3 getCameraPos() const;
 
 private:
     void updateCameraVectors();

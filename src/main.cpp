@@ -82,7 +82,7 @@ int main()
     util::ShadersManager objectShader("../src/shaders/vertex.vs", "../src/shaders/fragment.fs");
     util::ShadersManager lightShader("../src/shaders/vertex.vs", "../src/shaders/lightFragment.fs");
 
-    const auto cubeVertices = utils::getCubeVertices();
+    const auto cubeVertices = utils::getCubeWithNormals();
     // const std::array cubePositions = utils::getCubesPositions();
 
     unsigned int objectVAO = 0;
@@ -99,22 +99,25 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(float) * cubeVertices.size(), cubeVertices.data(), GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 
     unsigned int lightCubeVAO = 0;
     glGenVertexArrays(1, &lightCubeVAO);
     glBindVertexArray(lightCubeVAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    objectShader.render();
-    objectShader.setVec3("objectColor", glm::vec3(1.0f, 0.5f, 0.3f));
-    objectShader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
-
     const glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+
+    objectShader.render();
+    objectShader.setVec3("objectColor", glm::vec3(1.0f, 0.5f, 0.31f));
+    objectShader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
+    objectShader.setVec3("lightPos", lightPos);
 
     float deltaTime = 0.0f;
     float lastFrame = deltaTime;
@@ -134,6 +137,7 @@ int main()
 
         objectShader.setMatrix4fv("view", view);
         objectShader.setMatrix4fv("projection", projection);
+        objectShader.setVec3("viewPos", camera.getCameraPos());
 
         auto model = glm::mat4(1.0f);
         objectShader.setMatrix4fv("model", model);

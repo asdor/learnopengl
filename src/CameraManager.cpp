@@ -108,4 +108,9 @@ glm::highp_mat4 Camera::getProjection() const
 {
     return glm::perspective(glm::radians(d_fov), 800.f / 600.f, 0.1f, 100.f);
 }
+
+glm::vec3 Camera::getCameraPos() const
+{
+    return d_pos;
+}
 }
