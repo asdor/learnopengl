@@ -112,12 +112,17 @@ int main()
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    const glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+    glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
     objectShader.render();
-    objectShader.setVec3("objectColor", glm::vec3(1.0f, 0.5f, 0.31f));
-    objectShader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
-    objectShader.setVec3("lightPos", lightPos);
+    objectShader.setVec3("material.ambient", glm::vec3(1.0f, 0.5f, 0.31f));
+    objectShader.setVec3("material.diffuse", glm::vec3(1.0f, 0.5f, 0.31f));
+    objectShader.setVec3("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
+    objectShader.setFloat("material.shiness", 32);
+
+    objectShader.setVec3("light.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
+    objectShader.setVec3("light.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
+    objectShader.setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
 
     float deltaTime = 0.0f;
     float lastFrame = deltaTime;
@@ -135,6 +140,12 @@ int main()
         auto view = camera.getView();
         auto projection = camera.getProjection();
 
+        // const float t = glfwGetTime();
+        // lightPos.x = 2.0f * std::sin(t);
+        // lightPos.y = -0.0f;
+        // lightPos.z = 2.0f * std::cos(t);
+
+        objectShader.setVec3("light.position", lightPos);
         objectShader.setMatrix4fv("view", view);
         objectShader.setMatrix4fv("projection", projection);
         objectShader.setVec3("viewPos", camera.getCameraPos());
