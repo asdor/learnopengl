@@ -27,6 +27,13 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
+file(GLOB ASSETS_DATA ${CMAKE_CURRENT_SOURCE_DIR}/assets/*)
+file(COPY ${ASSETS_DATA}
+     DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/assets)
+file(GLOB SHADERS_DATA ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders/*)
+file(COPY ${SHADERS_DATA}
+     DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/shaders)
+
 target_compile_options(${PROJECT_NAME} PRIVATE
     $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
     -Wall -Wextra -Wpedantic -Werror -fconcepts>

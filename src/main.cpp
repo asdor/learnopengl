@@ -79,8 +79,8 @@ int main()
     glfwSetScrollCallback(window, scroll_callback);
 
     stbi_set_flip_vertically_on_load(true);
-    util::ShadersManager objectShader("../src/shaders/vertex.vs", "../src/shaders/fragment.fs");
-    util::ShadersManager lightShader("../src/shaders/vertex.vs", "../src/shaders/lightFragment.fs");
+    util::ShadersManager objectShader("../shaders/vertex.vs", "../shaders/fragment.fs");
+    util::ShadersManager lightShader("../shaders/vertex.vs", "../shaders/lightFragment.fs");
     util::TextureManager containerWooden("../assets/container2.png");
     util::TextureManager containerBorder("../assets/container2_specular.png");
 
