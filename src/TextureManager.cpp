@@ -4,7 +4,7 @@
 
 #include <stdexcept>
 
-util::TextureManager::TextureManager(const std::string& i_texturePath, GLenum i_wrapParam)
+util::TextureManager::TextureManager(const std::string& i_texturePath, GLenum i_wrapParam /* = GL_REPEAT */)
 {
     int texWidth = 0;
     int texHeight = 0;
@@ -19,7 +19,7 @@ util::TextureManager::TextureManager(const std::string& i_texturePath, GLenum i_
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, i_wrapParam);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, i_wrapParam);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     const auto imageFormat = i_texturePath.ends_with("png") ? GL_RGBA : GL_RGB;

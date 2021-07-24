@@ -81,8 +81,10 @@ int main()
     stbi_set_flip_vertically_on_load(true);
     util::ShadersManager objectShader("../src/shaders/vertex.vs", "../src/shaders/fragment.fs");
     util::ShadersManager lightShader("../src/shaders/vertex.vs", "../src/shaders/lightFragment.fs");
+    util::TextureManager containerWooden("../assets/container2.png");
+    util::TextureManager containerBorder("../assets/container2_specular.png");
 
-    const auto cubeVertices = utils::getCubeWithNormals();
+    const auto cubeVertices = utils::getCubeWithNormalsAndTextures();
     // const std::array cubePositions = utils::getCubesPositions();
 
     unsigned int objectVAO = 0;
@@ -99,27 +101,31 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(float) * cubeVertices.size(), cubeVertices.data(), GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
 
     unsigned int lightCubeVAO = 0;
     glGenVertexArrays(1, &lightCubeVAO);
     glBindVertexArray(lightCubeVAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
     glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
     objectShader.render();
-    objectShader.setVec3("material.ambient", glm::vec3(1.0f, 0.5f, 0.31f));
-    objectShader.setVec3("material.diffuse", glm::vec3(1.0f, 0.5f, 0.31f));
-    objectShader.setVec3("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
+    // material properties
+    objectShader.setInt("material.diffuse", 0);
+    objectShader.setInt("material.specular", 1);
+    // objectShader.setVec3("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
     objectShader.setFloat("material.shiness", 32);
 
+    // light properties
     objectShader.setVec3("light.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
     objectShader.setVec3("light.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
     objectShader.setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
@@ -137,32 +143,43 @@ int main()
 
         objectShader.render();
 
-        auto view = camera.getView();
-        auto projection = camera.getProjection();
-
         // const float t = glfwGetTime();
         // lightPos.x = 2.0f * std::sin(t);
         // lightPos.y = -0.0f;
         // lightPos.z = 2.0f * std::cos(t);
 
+        // positions
         objectShader.setVec3("light.position", lightPos);
-        objectShader.setMatrix4fv("view", view);
-        objectShader.setMatrix4fv("projection", projection);
         objectShader.setVec3("viewPos", camera.getCameraPos());
 
+        // view/projection transforms
+        auto view = camera.getView();
+        auto projection = camera.getProjection();
+        objectShader.setMatrix4fv("view", view);
+        objectShader.setMatrix4fv("projection", projection);
+
+        // activating textures
+        containerWooden.activate(GL_TEXTURE0);
+        containerBorder.activate(GL_TEXTURE1);
+
+        // world transform
         auto model = glm::mat4(1.0f);
         objectShader.setMatrix4fv("model", model);
+
+        // render cube
         glBindVertexArray(objectVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
-
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, lightPos);
-        model = glm::scale(model, glm::vec3(0.2f));
 
         lightShader.render();
         lightShader.setMatrix4fv("view", view);
         lightShader.setMatrix4fv("projection", projection);
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, lightPos);
+        model = glm::scale(model, glm::vec3(0.2f));
         lightShader.setMatrix4fv("model", model);
+
+        // render lamp object
         glBindVertexArray(lightCubeVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
