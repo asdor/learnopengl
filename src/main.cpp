@@ -85,7 +85,7 @@ int main()
     util::TextureManager containerBorder("../assets/container2_specular.png");
 
     const auto cubeVertices = utils::getCubeWithNormalsAndTextures();
-    // const std::array cubePositions = utils::getCubesPositions();
+    const std::array cubePositions = utils::getCubesPositions();
 
     unsigned int objectVAO = 0;
     glGenVertexArrays(1, &objectVAO);
@@ -116,7 +116,8 @@ int main()
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+    //glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+    glm::vec3 lightDir(-0.2f, -1.0f, -0.3f);
 
     objectShader.render();
     // material properties
@@ -143,13 +144,13 @@ int main()
 
         objectShader.render();
 
-        // const float t = glfwGetTime();
-        // lightPos.x = 2.0f * std::sin(t);
-        // lightPos.y = -0.0f;
-        // lightPos.z = 2.0f * std::cos(t);
+         const float t = glfwGetTime();
+         lightDir.x = 2.0f * std::sin(t);
+         lightDir.y = -0.0f;
+         lightDir.z = 2.0f * std::cos(t);
 
         // positions
-        objectShader.setVec3("light.position", lightPos);
+        //objectShader.setVec3("light.direction", lightDir);
         objectShader.setVec3("viewPos", camera.getCameraPos());
 
         // view/projection transforms
@@ -168,14 +169,26 @@ int main()
 
         // render cube
         glBindVertexArray(objectVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        /*glDrawArrays(GL_TRIANGLES, 0, 36);*/
+
+        for (unsigned int i = 0; i < 10; ++i)
+        {
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, cubePositions[i]);
+            const float angle = 20.0f * i;
+            model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+            objectShader.setMatrix4fv("model", model);
+            objectShader.setVec3("light.direction", lightDir);
+
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
 
         lightShader.render();
         lightShader.setMatrix4fv("view", view);
         lightShader.setMatrix4fv("projection", projection);
 
         model = glm::mat4(1.0f);
-        model = glm::translate(model, lightPos);
+        model = glm::translate(model, -lightDir);
         model = glm::scale(model, glm::vec3(0.2f));
         lightShader.setMatrix4fv("model", model);
 

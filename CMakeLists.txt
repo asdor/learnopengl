@@ -30,9 +30,14 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 file(GLOB ASSETS_DATA ${CMAKE_CURRENT_SOURCE_DIR}/assets/*)
 file(COPY ${ASSETS_DATA}
      DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/assets)
-file(GLOB SHADERS_DATA ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders/*)
-file(COPY ${SHADERS_DATA}
-     DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/shaders)
+
+file(GLOB SHADERS_DATA RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders/*)
+foreach(SHADER_FILE ${SHADERS_DATA})
+    set(SRC_SHADER ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders/${SHADER_FILE})
+    set(DST_SHADER ${CMAKE_CURRENT_BINARY_DIR}/shaders/${SHADER_FILE})
+    message("Copying ${SRC_SHADER} to ${DST_SHADER}")
+    configure_file(${SRC_SHADER} ${DST_SHADER} COPYONLY)
+endforeach()
 
 target_compile_options(${PROJECT_NAME} PRIVATE
     $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:

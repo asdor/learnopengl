@@ -35,6 +35,7 @@ GLuint prepareShader(std::string_view i_shaderPath, GLenum i_shaderType)
 
     unsigned int shaderId = glCreateShader(i_shaderType);
     const auto shaderCStr = shader.c_str();
+    std::cout << i_shaderPath << ": \n" << shaderCStr << '\n';
     glShaderSource(shaderId, 1, &shaderCStr, nullptr);
     glCompileShader(shaderId);
     checkShaderCompilation(shaderId, i_shaderPath);
@@ -94,6 +95,12 @@ void util::ShadersManager::setFloat(const std::string& i_name, float i_value) co
 void util::ShadersManager::setVec3(const std::string& i_name, const glm::vec3& i_vec) const
 {
     const int vecLoc = glGetUniformLocation(d_programId, i_name.c_str());
+    if (vecLoc == -1)
+    {
+        std::cout << "Bad uniform vec3: " << i_name << '\n';
+        throw std::runtime_error("Bad uniform vec3: " + i_name);
+    }
+
     glUniform3fv(vecLoc, 1, glm::value_ptr(i_vec));
 }
 
