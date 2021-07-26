@@ -79,10 +79,10 @@ int main()
     glfwSetScrollCallback(window, scroll_callback);
 
     stbi_set_flip_vertically_on_load(true);
-    util::ShadersManager objectShader("../shaders/vertex.vs", "../shaders/fragment.fs");
-    util::ShadersManager lightShader("../shaders/vertex.vs", "../shaders/lightFragment.fs");
-    util::TextureManager containerWooden("../assets/container2.png");
-    util::TextureManager containerBorder("../assets/container2_specular.png");
+    util::ShadersManager objectShader("shaders/vertex.vs", "shaders/fragment.fs");
+    util::ShadersManager lightShader("shaders/vertex.vs", "shaders/lightFragment.fs");
+    util::TextureManager containerWooden("assets/container2.png");
+    util::TextureManager containerBorder("assets/container2_specular.png");
 
     const auto cubeVertices = utils::getCubeWithNormalsAndTextures();
     const std::array cubePositions = utils::getCubesPositions();
@@ -116,8 +116,7 @@ int main()
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    //glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
-    glm::vec3 lightDir(-0.2f, -1.0f, -0.3f);
+    glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
     objectShader.render();
     // material properties
@@ -127,9 +126,12 @@ int main()
     objectShader.setFloat("material.shiness", 32);
 
     // light properties
-    objectShader.setVec3("light.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
-    objectShader.setVec3("light.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
+    objectShader.setVec3("light.ambient", glm::vec3(0.1f, 0.1f, 0.1f));
+    objectShader.setVec3("light.diffuse", glm::vec3(0.8f, 0.8f, 0.8f));
     objectShader.setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+    objectShader.setFloat("light.constant", 1.0f);
+    objectShader.setFloat("light.linear", 0.09f);
+    objectShader.setFloat("light.quadratic", 0.032f);
 
     float deltaTime = 0.0f;
     float lastFrame = deltaTime;
@@ -139,18 +141,17 @@ int main()
     while(!glfwWindowShouldClose(window))
     {
         process_input(window, camera, deltaTime, lastFrame);
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         objectShader.render();
 
-         const float t = glfwGetTime();
-         lightDir.x = 2.0f * std::sin(t);
-         lightDir.y = -0.0f;
-         lightDir.z = 2.0f * std::cos(t);
+         //const float t = glfwGetTime();
+         //lightDir.x = 2.0f * std::sin(t);
+         //lightDir.y = -0.0f;
+         //lightDir.z = 2.0f * std::cos(t);
 
         // positions
-        //objectShader.setVec3("light.direction", lightDir);
         objectShader.setVec3("viewPos", camera.getCameraPos());
 
         // view/projection transforms
@@ -167,6 +168,11 @@ int main()
         auto model = glm::mat4(1.0f);
         objectShader.setMatrix4fv("model", model);
 
+        objectShader.setVec3("light.position", camera.getCameraPos());
+        objectShader.setVec3("light.direction", camera.getCameraFront());
+        objectShader.setFloat("light.cutOff", glm::cos(glm::radians(12.5f)));
+        objectShader.setFloat("light.outerCutOff", glm::cos(glm::radians(17.5f)));
+
         // render cube
         glBindVertexArray(objectVAO);
         /*glDrawArrays(GL_TRIANGLES, 0, 36);*/
@@ -178,7 +184,6 @@ int main()
             const float angle = 20.0f * i;
             model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
             objectShader.setMatrix4fv("model", model);
-            objectShader.setVec3("light.direction", lightDir);
 
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
@@ -188,7 +193,7 @@ int main()
         lightShader.setMatrix4fv("projection", projection);
 
         model = glm::mat4(1.0f);
-        model = glm::translate(model, -lightDir);
+        model = glm::translate(model, lightPos);
         model = glm::scale(model, glm::vec3(0.2f));
         lightShader.setMatrix4fv("model", model);
 

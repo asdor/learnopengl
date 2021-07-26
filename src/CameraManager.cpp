@@ -114,4 +114,9 @@ glm::vec3 Camera::getCameraPos() const
 {
     return d_pos;
 }
+
+glm::vec3 Camera::getCameraFront() const
+{
+    return d_front;
+}
 }

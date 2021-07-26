@@ -12,7 +12,7 @@ endif()
 include(${CMAKE_BINARY_DIR}/conan.cmake)
 
 conan_cmake_run(CONANFILE conanfile.txt
-                BASIC_SETUP
+                BASIC_SETUP NO_OUTPUT_DIRS
                 BUILD missing)
 
 find_package(OpenGL REQUIRED)

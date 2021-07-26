@@ -35,7 +35,6 @@ GLuint prepareShader(std::string_view i_shaderPath, GLenum i_shaderType)
 
     unsigned int shaderId = glCreateShader(i_shaderType);
     const auto shaderCStr = shader.c_str();
-    std::cout << i_shaderPath << ": \n" << shaderCStr << '\n';
     glShaderSource(shaderId, 1, &shaderCStr, nullptr);
     glCompileShader(shaderId);
     checkShaderCompilation(shaderId, i_shaderPath);
