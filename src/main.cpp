@@ -86,6 +86,7 @@ int main()
 
     const auto cubeVertices = utils::getCubeWithNormalsAndTextures();
     const std::array cubePositions = utils::getCubesPositions();
+    const std::array pointLightPositions = utils::getPointLightPos();
 
     unsigned int objectVAO = 0;
     glGenVertexArrays(1, &objectVAO);
@@ -116,7 +117,7 @@ int main()
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+    glm::vec3 dirLightDir(0.2f, 1.0f, 0.3f);
 
     objectShader.render();
     // material properties
@@ -126,12 +127,14 @@ int main()
     objectShader.setFloat("material.shiness", 32);
 
     // light properties
-    objectShader.setVec3("light.ambient", glm::vec3(0.1f, 0.1f, 0.1f));
-    objectShader.setVec3("light.diffuse", glm::vec3(0.8f, 0.8f, 0.8f));
-    objectShader.setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
-    objectShader.setFloat("light.constant", 1.0f);
+    objectShader.setVec3("dirLight.ambient", glm::vec3(0.05f, 0.05f, 0.05f));
+    objectShader.setVec3("dirLight.diffuse", glm::vec3(0.4f, 0.4f, 0.4f));
+    objectShader.setVec3("dirLight.specular", glm::vec3(0.5f, 0.5f, 0.5f));
+    objectShader.setVec3("dirLight.direction", -dirLightDir);
+
+    /*objectShader.setFloat("light.constant", 1.0f);
     objectShader.setFloat("light.linear", 0.09f);
-    objectShader.setFloat("light.quadratic", 0.032f);
+    objectShader.setFloat("light.quadratic", 0.032f);*/
 
     float deltaTime = 0.0f;
     float lastFrame = deltaTime;
@@ -168,10 +171,32 @@ int main()
         auto model = glm::mat4(1.0f);
         objectShader.setMatrix4fv("model", model);
 
-        objectShader.setVec3("light.position", camera.getCameraPos());
-        objectShader.setVec3("light.direction", camera.getCameraFront());
-        objectShader.setFloat("light.cutOff", glm::cos(glm::radians(12.5f)));
-        objectShader.setFloat("light.outerCutOff", glm::cos(glm::radians(17.5f)));
+        for (size_t i = 0; const auto& pos : pointLightPositions)
+        {
+            const std::string lightElem = "pointLights[" + std::to_string(i++) + "]";
+            objectShader.setVec3(lightElem + ".position", pos);
+
+            objectShader.setVec3(lightElem + ".ambient", glm::vec3(0.05f, 0.05f, 0.05f));
+            objectShader.setVec3(lightElem + ".diffuse", glm::vec3(0.8f, 0.8f, 0.8f));
+            objectShader.setVec3(lightElem + ".specular", glm::vec3(1.0f, 1.0f, 1.0f));
+
+            objectShader.setFloat(lightElem + ".constant", 1.0f);
+            objectShader.setFloat(lightElem + ".linear", 0.09f);
+            objectShader.setFloat(lightElem + ".quadratic", 0.032f);
+        }
+
+        objectShader.setVec3("spotLight.position", camera.getCameraPos());
+        objectShader.setVec3("spotLight.direction", camera.getCameraFront());
+        objectShader.setFloat("spotLight.cutOff", glm::cos(glm::radians(12.5f)));
+        objectShader.setFloat("spotLight.outerCutOff", glm::cos(glm::radians(15.0f)));
+
+        objectShader.setVec3("spotLight.ambient", glm::vec3(0.0f, 0.0f, 0.0f));
+        objectShader.setVec3("spotLight.diffuse", glm::vec3(1.0f, 1.0f, 1.0f));
+        objectShader.setVec3("spotLight.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+
+        objectShader.setFloat("spotLight.constant", 1.0f);
+        objectShader.setFloat("spotLight.linear", 0.09f);
+        objectShader.setFloat("spotLight.quadratic", 0.032f);
 
         // render cube
         glBindVertexArray(objectVAO);
@@ -188,18 +213,21 @@ int main()
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
 
-        lightShader.render();
-        lightShader.setMatrix4fv("view", view);
-        lightShader.setMatrix4fv("projection", projection);
-
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, lightPos);
-        model = glm::scale(model, glm::vec3(0.2f));
-        lightShader.setMatrix4fv("model", model);
-
-        // render lamp object
         glBindVertexArray(lightCubeVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        for (size_t i = 0; const auto& pos : pointLightPositions)
+        {
+            lightShader.render();
+            lightShader.setMatrix4fv("view", view);
+            lightShader.setMatrix4fv("projection", projection);
+
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, pos);
+            model = glm::scale(model, glm::vec3(0.2f));
+            lightShader.setMatrix4fv("model", model);
+
+            // render lamp object
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
 
         glfwSwapBuffers(window);
         glfwPollEvents();

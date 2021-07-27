@@ -12,6 +12,7 @@ std::array<float, 180> getCubeVertices();
 std::array<glm::vec3, 10> getCubesPositions();
 std::vector<float> getCubeWithNormals();
 std::array<float, 288> getCubeWithNormalsAndTextures();
+std::array<glm::vec3, 4> getPointLightPos();
 }
 
 #endif // __VERTICES_HPP__
