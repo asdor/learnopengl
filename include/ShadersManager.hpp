@@ -6,14 +6,14 @@
 
 #include <string_view>
 
-namespace util
+namespace utils
 {
 class ShadersManager
 {
 public:
     ShadersManager(std::string_view i_vertexShaderPath, std::string_view i_fragmentShaderPath);
 
-    void render();
+    void render() const;
 
     GLuint getId() const;
 
@@ -27,6 +27,6 @@ private:
     GLuint d_programId;
 
 };
-} // namespace util
+} // namespace utils
 
 #endif // __SHADERS_MANAGER_HPP__

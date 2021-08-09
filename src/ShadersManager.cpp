@@ -43,7 +43,7 @@ GLuint prepareShader(std::string_view i_shaderPath, GLenum i_shaderType)
 }
 }
 
-util::ShadersManager::ShadersManager(std::string_view i_vertexShaderPath, std::string_view i_fragmentShaderPath)
+utils::ShadersManager::ShadersManager(std::string_view i_vertexShaderPath, std::string_view i_fragmentShaderPath)
 {
     const auto vertexId = prepareShader(i_vertexShaderPath, GL_VERTEX_SHADER);
     const auto fragmentId = prepareShader(i_fragmentShaderPath, GL_FRAGMENT_SHADER);
@@ -66,32 +66,38 @@ util::ShadersManager::ShadersManager(std::string_view i_vertexShaderPath, std::s
     glDeleteShader(fragmentId);
 }
 
-void util::ShadersManager::render()
+void utils::ShadersManager::render() const
 {
     glUseProgram(d_programId);
 }
 
-GLuint util::ShadersManager::getId() const
+GLuint utils::ShadersManager::getId() const
 {
     return d_programId;
 }
 
-void util::ShadersManager::setBool(const std::string& i_name, bool i_value) const
+void utils::ShadersManager::setBool(const std::string& i_name, bool i_value) const
 {
     setInt(i_name, static_cast<int>(i_value));
 }
 
-void util::ShadersManager::setInt(const std::string& i_name, int i_value) const
+void utils::ShadersManager::setInt(const std::string& i_name, int i_value) const
 {
     glUniform1i(glGetUniformLocation(d_programId, i_name.c_str()), i_value);
 }
 
-void util::ShadersManager::setFloat(const std::string& i_name, float i_value) const
+void utils::ShadersManager::setFloat(const std::string& i_name, float i_value) const
 {
-    glUniform1f(glGetUniformLocation(d_programId, i_name.c_str()), i_value);
+    const auto valueLocation = glGetUniformLocation(d_programId, i_name.c_str());
+    /*if (valueLocation == -1)
+    {
+        std::cout << "Bad uniform float: " << i_name << '\n';
+        throw std::runtime_error("Bad uniform float: " + i_name);
+    }*/
+    glUniform1f(valueLocation, i_value);
 }
 
-void util::ShadersManager::setVec3(const std::string& i_name, const glm::vec3& i_vec) const
+void utils::ShadersManager::setVec3(const std::string& i_name, const glm::vec3& i_vec) const
 {
     const int vecLoc = glGetUniformLocation(d_programId, i_name.c_str());
     if (vecLoc == -1)
@@ -103,7 +109,7 @@ void util::ShadersManager::setVec3(const std::string& i_name, const glm::vec3& i
     glUniform3fv(vecLoc, 1, glm::value_ptr(i_vec));
 }
 
-void util::ShadersManager::setMatrix4fv(const std::string& i_name, const glm::mat4& i_matrix) const
+void utils::ShadersManager::setMatrix4fv(const std::string& i_name, const glm::mat4& i_matrix) const
 {
     const int matrixLoc = glGetUniformLocation(d_programId, i_name.c_str());
     glUniformMatrix4fv(matrixLoc, 1, GL_FALSE, glm::value_ptr(i_matrix));

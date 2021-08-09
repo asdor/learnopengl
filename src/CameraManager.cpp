@@ -22,7 +22,7 @@ static constexpr float FOV = 45.0f;
 // }
 }
 
-namespace util
+namespace utils
 {
 Camera::Camera(const glm::vec3& i_pos, const glm::vec3& i_front, const glm::vec3& i_up)
     : d_pos(i_pos), d_front(i_front), d_up(i_up), d_yaw(YAW), d_pitch(PITCH), d_fov(FOV), d_worldUp(i_up)
